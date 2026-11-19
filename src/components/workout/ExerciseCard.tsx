@@ -229,11 +229,12 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise }) => {
           <span className="col-span-2 text-center">تم</span>
         </div>
 
-        {currentSets.map((s) => {
-          const prev = prevSets[s.setNumber - 1];
+        {Array.from({ length: exercise.sets }).map((_, idx) => {
+          const s = currentSets[idx] || { reps: '', load: '', completed: false };
+          const prev = prevSets[idx];
           return (
             <div
-              key={s.setNumber}
+              key={idx}
               className={`grid grid-cols-12 gap-2 items-center px-2 py-2 rounded-xl transition-all border ${
                 s.completed
                   ? 'bg-[#00f59b]/10 border-[#00f59b]/30'
@@ -242,26 +243,20 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise }) => {
             >
               {/* Set number */}
               <div className="col-span-2 flex items-center justify-center font-bold font-mono text-xs text-white">
-                #{s.setNumber}
+                #{idx + 1}
               </div>
 
               {/* Previous performance */}
               <div className="col-span-3 text-center text-xs text-zinc-400 font-mono" dir="ltr">
-                {prev ? `${prev.reps} × ${prev.weight || 'BW'}` : '—'}
+                {prev ? `${prev.reps} × ${prev.load || 'BW'}` : '—'}
               </div>
 
               {/* Reps input */}
               <div className="col-span-3 flex justify-center">
                 <input
-                  type="number"
-                  min="0"
-                  max="100"
+                  type="text"
                   value={s.reps || ''}
-                  onChange={(e) =>
-                    updateSet(exercise.id, s.setNumber, {
-                      reps: parseInt(e.target.value) || 0,
-                    })
-                  }
+                  onChange={(e) => updateSet(exercise.id, idx, 'reps', e.target.value)}
                   className="w-16 h-8 text-center rounded-lg bg-black/50 border border-white/10 text-white font-mono text-sm focus:outline-none focus:border-[#00f59b] transition-colors"
                   placeholder={exercise.reps}
                   dir="ltr"
@@ -272,12 +267,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise }) => {
               <div className="col-span-2 flex justify-center">
                 <input
                   type="text"
-                  value={s.weight || ''}
-                  onChange={(e) =>
-                    updateSet(exercise.id, s.setNumber, {
-                      weight: e.target.value,
-                    })
-                  }
+                  value={s.load || ''}
+                  onChange={(e) => updateSet(exercise.id, idx, 'load', e.target.value)}
                   className="w-16 h-8 text-center rounded-lg bg-black/50 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-[#00f59b] transition-colors"
                   placeholder="BW / باند"
                 />
@@ -286,7 +277,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise }) => {
               {/* Complete Checkbox */}
               <div className="col-span-2 flex justify-center">
                 <button
-                  onClick={() => toggleSetComplete(exercise.id, s.setNumber)}
+                  onClick={() => toggleSetComplete(exercise.id, idx)}
                   className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
                     s.completed
                       ? 'bg-[#00f59b] text-black shadow-md shadow-[#00f59b]/30'
